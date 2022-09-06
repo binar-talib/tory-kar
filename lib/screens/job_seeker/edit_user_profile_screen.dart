@@ -192,7 +192,7 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                 controller: bio,
                 label: 'Bio',
                 hintText: 'Bio about yourself',
-                onChanged: (String) {},
+                onChanged: (value) {},
               ),
               const SizedBox(height: 15.0),
               CustomTextField(
@@ -229,7 +229,7 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                 label: 'Skills',
                 hintText: 'Your skills...',
                 maxLines: 15,
-                onChanged: (String) {},
+                onChanged: (value) {},
               ),
               const SizedBox(height: 15.0),
               const AutoSizeText15(text: 'Languages'),

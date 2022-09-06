@@ -1,20 +1,22 @@
+import 'dart:async';
+
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/auth_bottom_sheet.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
 import 'package:tory_kar/custom_widgets/filter_sheet.dart';
-import 'package:tory_kar/custom_widgets/job_cards.dart';
 import 'package:tory_kar/custom_widgets/profile_button.dart';
 import 'package:tory_kar/custom_widgets/search_field.dart';
 import 'package:tory_kar/modules/necessary_methods.dart';
 import 'package:tory_kar/networking/jobs.dart';
 import 'package:tory_kar/networking/models/job.dart';
-import 'package:tory_kar/screens/job_seeker/job_details_screen.dart';
 import 'package:tory_kar/screens/job_seeker/user_profile_screen.dart';
+
+import '../../custom_widgets/job_cards.dart';
+import 'job_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -24,16 +26,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Map<String, dynamic>>> getAllJobs;
+  late Future<List> getAllJobs;
   late List<Job> searchedJobs = [];
   late List<Job> allJobs = [];
+
+  Future<void> refresh() async {}
+
   @override
   void initState() {
     super.initState();
     getAllJobs = Jobs().getAllJobs();
   }
-
-  Future<void> refresh() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
+              child: FutureBuilder<List>(
                 future: getAllJobs,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {

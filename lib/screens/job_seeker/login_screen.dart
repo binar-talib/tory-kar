@@ -1,7 +1,4 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
@@ -9,6 +6,7 @@ import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/authentication.dart';
 import 'package:tory_kar/screens/job_seeker/pages_view_screen.dart';
 import 'package:tory_kar/screens/job_seeker/sign_up_screen.dart';
 
@@ -24,63 +22,39 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController phone = TextEditingController();
   TextEditingController password = TextEditingController();
+  final Authentication _authentication = Authentication();
 
   Future<void> login() async {
     if (password.text.isNotEmpty && phone.text.isNotEmpty) {
-      var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/login');
-      var response = await http.post(
-        url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: convert.jsonEncode(
-          <String, String>{
-            'phone': phone.text,
-            'password': password.text,
-          },
-        ),
-      );
-      if (response.statusCode == 401) {
+      int statusCode = await _authentication.userLogin(
+          phone: phone.text, password: password.text);
+      if (statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Invalid email or phone'),
+            content: Text('Invalid phone or password'),
           ),
         );
       } else {
-        if (response.statusCode == 200) {
-          var decodedJson = convert.jsonDecode(response.body);
+        if (statusCode == 200) {
           final prefs = await SharedPreferences.getInstance();
-          prefs.setString('token', decodedJson['token']);
-
-          var url2 =
-              Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/me');
-          var response2 = await http.get(
-            url2,
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Authorization': 'Bearer ${decodedJson['token']}',
-            },
+          String userRole = await _authentication.getLoggingUser(
+            token: prefs.getString('token'),
           );
-          if (response2.statusCode == 200) {
-            var decodedJson2 = convert.jsonDecode(response2.body);
-            var data = decodedJson2['data'];
-            prefs.setString('_id', data['_id']);
-            prefs.setString('role', data['role']);
-            if (data['role'] == 'jobSeeker') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PagesViewScreen(),
-                ),
-              );
-            } else if (data['role'] == 'jobProvider') {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CompanyPageViewScreen(),
-                ),
-              );
-            }
+
+          if (userRole == 'jobSeeker') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PagesViewScreen(),
+              ),
+            );
+          } else if (userRole == 'jobProvider') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CompanyPageViewScreen(),
+              ),
+            );
           }
         }
       }
@@ -154,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SignUpScreen(),
+                        builder: (context) => const SignUpScreen(),
                       ),
                     );
                   },

@@ -15,7 +15,7 @@ String calculateYears(String date) {
 search({required String query, required List list}) {
   int i = 0;
   return list.where((job) {
-    final jobTitle = list[i].name.toLowerCase();
+    final jobTitle = job.name.toLowerCase();
     final searchTitle = query.toLowerCase();
     i++;
     return jobTitle.contains(searchTitle);
