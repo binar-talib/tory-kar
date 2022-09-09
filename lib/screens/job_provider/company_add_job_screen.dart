@@ -144,9 +144,9 @@ class _CompanyAddJobScreenState extends State<CompanyAddJobScreen> {
               const SizedBox(height: 15.0),
               CustomTextField(
                 controller: title,
-                label: 'Full Name',
-                icon: const Icon(Icons.account_circle_rounded),
-                hintText: 'Enter Full Name',
+                label: 'Job Title',
+                icon: const Icon(Icons.title_rounded),
+                hintText: 'Job Title',
               ),
               const SizedBox(height: 15.0),
               CustomTextField(

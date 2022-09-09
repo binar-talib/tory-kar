@@ -20,7 +20,7 @@ class JobCards extends StatelessWidget {
 
   final String image;
   final String title;
-  final String company;
+  final String? company;
   final int salary;
   final String type;
   final String location;
@@ -63,7 +63,7 @@ class JobCards extends StatelessWidget {
                   maxLine: 1,
                 ),
                 subtitle: AutoSizeText10(
-                  text: company,
+                  text: company!,
                   color: const Color(0xFF2B2D42).withOpacity(0.5),
                 ),
                 trailing: IconButton(

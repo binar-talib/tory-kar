@@ -12,7 +12,7 @@ import 'package:tory_kar/custom_widgets/profile_button.dart';
 import 'package:tory_kar/custom_widgets/search_field.dart';
 import 'package:tory_kar/modules/necessary_methods.dart';
 import 'package:tory_kar/networking/jobs.dart';
-import 'package:tory_kar/networking/models/job.dart';
+import 'package:tory_kar/networking/models/job_model.dart';
 import 'package:tory_kar/screens/job_seeker/user_profile_screen.dart';
 
 import '../../custom_widgets/job_cards.dart';
@@ -27,8 +27,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List> getAllJobs;
-  late List<Job> searchedJobs = [];
-  late List<Job> allJobs = [];
+  late List<JobModel> searchedJobs = [];
+  late List<JobModel> allJobs = [];
 
   Future<void> refresh() async {}
 
@@ -127,8 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 future: getAllJobs,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    allJobs =
-                        snapshot.data!.map((e) => Job.fromJson(e)).toList();
+                    allJobs = snapshot.data!
+                        .map((e) => JobModel.fromJson(e))
+                        .toList();
                     searchedJobs = allJobs;
                     return ListView.builder(
                       padding: const EdgeInsets.only(

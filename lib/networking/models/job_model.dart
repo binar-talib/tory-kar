@@ -1,4 +1,4 @@
-class Job {
+class JobModel {
   final String locationType;
   final double longitude;
   final double latitude;
@@ -6,17 +6,17 @@ class Job {
   final String state;
   final String country;
   final String jobType;
-  final bool isDone;
-  final String id;
   final String name;
+  final String id;
   final String deadline;
   final String jobDescription;
   final String jobQualifications;
-  final int salary;
   final String jobProviderID;
   final String jobProviderName;
+  final int salary;
+  final bool isDone;
 
-  Job({
+  JobModel({
     required this.locationType,
     required this.longitude,
     required this.latitude,
@@ -35,8 +35,8 @@ class Job {
     required this.jobProviderName,
   });
 
-  factory Job.fromJson(Map<String, dynamic> json) {
-    return Job(
+  factory JobModel.fromJson(Map<String, dynamic> json) {
+    return JobModel(
       locationType: json['location']['type'],
       longitude: json['location']['coordinates'][0],
       latitude: json['location']['coordinates'][1],
@@ -55,4 +55,40 @@ class Job {
       jobProviderName: json['jobProvider']['name'],
     );
   }
+  JobModel copyWith({
+    required String locationType,
+    required double longitude,
+    required double latitude,
+    required String formattedAddress,
+    required String state,
+    required String country,
+    required String jobType,
+    required String id,
+    required String name,
+    required String deadline,
+    required String jobDescription,
+    required String jobQualifications,
+    required String jobProviderID,
+    required String jobProviderName,
+    required int salary,
+    required bool isDone,
+  }) =>
+      JobModel(
+        country: country,
+        deadline: deadline,
+        formattedAddress: formattedAddress,
+        id: id,
+        isDone: isDone,
+        jobDescription: jobDescription,
+        jobProviderID: jobProviderID,
+        jobProviderName: jobProviderName,
+        name: name,
+        jobQualifications: jobQualifications,
+        jobType: jobType,
+        latitude: latitude,
+        locationType: locationType,
+        longitude: latitude,
+        salary: salary,
+        state: state,
+      );
 }
