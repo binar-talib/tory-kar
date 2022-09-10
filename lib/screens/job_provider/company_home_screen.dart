@@ -10,8 +10,8 @@ import 'package:tory_kar/modules/constants.dart';
 import 'package:tory_kar/networking/job_provider.dart';
 import 'package:tory_kar/screens/job_provider/company_profile_screen.dart';
 
-import '../../networking/models/job_provider_job_model.dart';
-import '../../networking/models/job_provider_model.dart';
+import '../../models/job_provider_job_model.dart';
+import '../../models/job_provider_model.dart';
 import 'company_add_job_screen.dart';
 import 'company_job_details_page_view_screen.dart';
 

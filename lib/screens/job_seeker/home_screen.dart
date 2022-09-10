@@ -12,10 +12,10 @@ import 'package:tory_kar/custom_widgets/profile_button.dart';
 import 'package:tory_kar/custom_widgets/search_field.dart';
 import 'package:tory_kar/modules/necessary_methods.dart';
 import 'package:tory_kar/networking/jobs.dart';
-import 'package:tory_kar/networking/models/job_model.dart';
 import 'package:tory_kar/screens/job_seeker/user_profile_screen.dart';
 
 import '../../custom_widgets/job_cards.dart';
+import '../../models/job_model.dart';
 import 'job_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {

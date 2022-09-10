@@ -1,4 +1,4 @@
-import 'dart:convert' as convert;
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -74,7 +74,7 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
-      body: convert.jsonEncode(
+      body: jsonEncode(
         <String, dynamic>{
           'name': name.text,
           'dateOfBirth': startup.text,

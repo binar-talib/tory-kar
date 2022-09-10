@@ -49,4 +49,17 @@ class JobProviderModel {
       profileImage: json['profileImage'],
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'dateOfStartup': dateOfStartup,
+      'companyDescription': companyDescription,
+      'bio': bio,
+      'email': email,
+      'fields': fields,
+      'location': {
+        'formattedAddress': location,
+      },
+    };
+  }
 }

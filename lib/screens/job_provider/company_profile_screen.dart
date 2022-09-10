@@ -9,7 +9,9 @@ import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
 import 'package:tory_kar/modules/constants.dart';
 import 'package:tory_kar/modules/necessary_methods.dart';
+import 'package:tory_kar/networking/job_provider.dart';
 
+import '../../models/job_provider_model.dart';
 import 'company_edit_profile_screen.dart';
 
 class CompanyProfileScreen extends StatefulWidget {
@@ -20,7 +22,7 @@ class CompanyProfileScreen extends StatefulWidget {
 }
 
 class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
-  List<dynamic> jobProvider = [];
+  late JobProviderModel jobProvider;
 
   @override
   void initState() {
@@ -64,14 +66,14 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => CompanyEditProfileScreen(
-                  id: jobProvider[0]['_id'],
-                  description: jobProvider[0]['companyDescription'],
-                  location: jobProvider[0]['location']['formattedAddress'],
-                  email: jobProvider[0]['email'],
-                  bio: jobProvider[0]['bio'],
-                  field: jobProvider[0]['fields'].toString(),
-                  name: jobProvider[0]['name'],
-                  startup: jobProvider[0]['dateOfStartup'],
+                  id: jobProvider.id,
+                  description: jobProvider.companyDescription,
+                  location: jobProvider.location,
+                  email: jobProvider.email,
+                  bio: jobProvider.bio,
+                  field: jobProvider.fields.toString(),
+                  name: jobProvider.name,
+                  startup: jobProvider.dateOfStartup,
                 ),
               ),
             );
@@ -79,11 +81,12 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
           icon: Icons.edit,
         ),
       ),
-      body: jobProvider.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: getJobProvider,
-              child: Column(
+      body: FutureBuilder<List>(
+          future: JobProvider().getCurrentJobProvider(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              jobProvider = JobProviderModel.fromJson(snapshot.data![0]);
+              return Column(
                 children: [
                   Expanded(
                     child: ListView(
@@ -129,24 +132,23 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
                                               size: 20,
                                             ),
                                             AutoSizeText10(
-                                              text: jobProvider[0]['location']
-                                                  ['formattedAddress'],
+                                              text: jobProvider.location,
                                             ),
                                           ],
                                         ),
                                         AutoSizeText15(
-                                          text: jobProvider[0]['name'],
+                                          text: jobProvider.name,
                                           maxLine: 1,
                                         ),
                                         const AutoSizeText10(
                                           text: 'Software',
                                         ),
                                         AutoSizeText10(
-                                          text: jobProvider[0]['email'],
+                                          text: jobProvider.email,
                                         ),
                                         AutoSizeText10(
                                           text:
-                                              'Startup: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(jobProvider[0]['dateOfStartup']))}\n${calculateYears(jobProvider[0]['dateOfStartup'])} years',
+                                              'Startup: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(jobProvider.dateOfStartup))}\n${calculateYears(jobProvider.dateOfStartup)} years',
                                         ),
                                       ],
                                     ),
@@ -159,7 +161,7 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
                               AutoSizeText12(
                                 color:
                                     const Color(0xFF2B2D42).withOpacity(0.75),
-                                text: jobProvider[0]['bio'],
+                                text: jobProvider.bio,
                               ),
                               const SizedBox(height: 15.0),
                               const AutoSizeText15(text: 'Company Description'),
@@ -167,7 +169,7 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
                               AutoSizeText12(
                                 color:
                                     const Color(0xFF2B2D42).withOpacity(0.75),
-                                text: jobProvider[0]['companyDescription'],
+                                text: jobProvider.companyDescription,
                               ),
                               const SizedBox(height: 15.0),
                             ],
@@ -177,8 +179,17 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('${snapshot.error}'),
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }),
     );
   }
 }
