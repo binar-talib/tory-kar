@@ -1,15 +1,13 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_drop_down_button.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/custom_widgets/next_button.dart';
+import 'package:tory_kar/networking/jobs.dart';
 
 class CompanyAddJobScreen extends StatefulWidget {
   const CompanyAddJobScreen({
@@ -49,62 +47,6 @@ class _CompanyAddJobScreenState extends State<CompanyAddJobScreen> {
   late TextEditingController description;
   late TextEditingController qualification;
   late TextEditingController salary;
-
-  Future<void> updateJob() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobs/$id');
-    var response = await http.put(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'name': title.text,
-          'deadline': deadline.text,
-          'jobDescription': description.text,
-          'jobQualifications': qualification.text,
-          'salary': int.parse(salary.text),
-          'jobType': selectedJobType,
-        },
-      ),
-    );
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-    }
-  }
-
-  Future<void> addJob() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    var url = Uri.parse(
-        'https://tory-kar-1.herokuapp.com/api/v1/jobproviders/$id/jobs');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'name': title.text,
-          'deadline': deadline.text,
-          'jobDescription': description.text,
-          'jobQualifications': qualification.text,
-          'salary': int.parse(salary.text),
-          'jobType': selectedJobType,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-    }
-  }
 
   @override
   void initState() {
@@ -161,7 +103,7 @@ class _CompanyAddJobScreenState extends State<CompanyAddJobScreen> {
                 label: 'Job Description',
                 hintText: 'Description about your job...',
                 maxLines: 15,
-                onChanged: (String) {},
+                onChanged: (string) {},
               ),
               const SizedBox(height: 15.0),
               CustomTextArea(
@@ -169,7 +111,7 @@ class _CompanyAddJobScreenState extends State<CompanyAddJobScreen> {
                 label: 'Job Qualification',
                 hintText: 'Your job qualifications...',
                 maxLines: 15,
-                onChanged: (String) {},
+                onChanged: (string) {},
               ),
               const SizedBox(height: 15.0),
               CustomDropDownButton(
@@ -192,8 +134,34 @@ class _CompanyAddJobScreenState extends State<CompanyAddJobScreen> {
               const SizedBox(height: 15.0),
               NextButton(
                 label: appBarName,
-                onPressed: () {
-                  appBarName == 'Edit Job' ? updateJob() : addJob();
+                onPressed: () async {
+                  if (appBarName == 'Edit Job') {
+                    http.Response response = await Jobs().updateJob(
+                      id: id,
+                      title: title.text.trim(),
+                      deadline: deadline.text.trim(),
+                      description: description.text.trim(),
+                      qualification: qualification.text.trim(),
+                      salary: int.parse(salary.text.trim()),
+                      selectedJobType: selectedJobType,
+                    );
+                    if (response.statusCode == 200) {
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    http.Response response = await Jobs().createJobProviderJob(
+                      id: id,
+                      title: title.text.trim(),
+                      deadline: deadline.text.trim(),
+                      description: description.text.trim(),
+                      qualification: qualification.text.trim(),
+                      salary: int.parse(salary.text.trim()),
+                      selectedJobType: selectedJobType.trim(),
+                    );
+                    if (response.statusCode == 200) {
+                      Navigator.pop(context);
+                    }
+                  }
                 },
                 icon: appBarName == 'Edit Job' ? Icons.edit : Icons.add_rounded,
               ),
