@@ -1,36 +1,22 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
+import 'package:tory_kar/models/job_provider_model.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/job_provider.dart';
 
 class CompanyEditProfileScreen extends StatefulWidget {
-  const CompanyEditProfileScreen(
-      {Key? key,
-      required this.name,
-      required this.startup,
-      required this.bio,
-      required this.email,
-      required this.location,
-      required this.field,
-      required this.description,
-      required this.id})
-      : super(key: key);
-  final String name;
-  final String startup;
-  final String bio;
-  final String email;
-  final String location;
-  final String field;
-  final String description;
-  final String id;
+  const CompanyEditProfileScreen({
+    Key? key,
+    required this.jobProviderModel,
+  }) : super(key: key);
+
+  final JobProviderModel jobProviderModel;
 
   @override
   State<CompanyEditProfileScreen> createState() =>
@@ -46,52 +32,24 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
   late TextEditingController field;
   late TextEditingController description;
   late String id;
+  late JobProviderModel jobProviderModel;
 
   @override
   void initState() {
     super.initState();
-    name = TextEditingController(text: widget.name);
+    jobProviderModel = widget.jobProviderModel;
+    name = TextEditingController(text: jobProviderModel.name);
     startup = TextEditingController(
-      text: DateFormat('yyyy-MM-dd').format(DateTime.parse(widget.startup)),
+      text: DateFormat('yyyy-MM-dd')
+          .format(DateTime.parse(jobProviderModel.dateOfStartup)),
     );
-    bio = TextEditingController(text: widget.bio);
-    email = TextEditingController(text: widget.email);
-    location = TextEditingController(text: widget.location);
-    field = TextEditingController(text: widget.field);
-    description = TextEditingController(text: widget.description);
-    id = widget.id;
-  }
-
-  Future<void> updateJobProvider() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobproviders/$id');
-    var response = await http.put(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode(
-        <String, dynamic>{
-          'name': name.text,
-          'dateOfBirth': startup.text,
-          'companyDescription': description.text,
-          'bio': bio.text,
-          'email': email.text,
-          'fields': field.text,
-          'location': {
-            'formattedAddress': location.text,
-          },
-        },
-      ),
-    );
-    print(response.statusCode);
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-    }
+    bio = TextEditingController(text: jobProviderModel.bio);
+    email = TextEditingController(text: jobProviderModel.email);
+    location = TextEditingController(text: jobProviderModel.location);
+    field = TextEditingController(text: jobProviderModel.fields);
+    description =
+        TextEditingController(text: jobProviderModel.companyDescription);
+    id = jobProviderModel.id;
   }
 
   @override
@@ -108,8 +66,21 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
           height: 40,
           width: 50,
           child: CustomTextButton(
-            onPressed: () {
-              updateJobProvider();
+            onPressed: () async {
+              http.Response response = await JobProvider().updateJobProvider(
+                id: id,
+                name: name.text,
+                email: email.text,
+                fields: email.text,
+                bio: bio.text,
+                description: description.text,
+                jobProviderModel: jobProviderModel,
+                location: location.text,
+                startup: startup.text,
+              );
+              if (response.statusCode == 200) {
+                Navigator.pop(context);
+              }
             },
             label: 'Save',
             bgcolor: Colors.white,

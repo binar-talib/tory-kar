@@ -12,10 +12,28 @@ class JobProviderModel {
   final String profileImage;
   final String address;
   final String role;
+  final String userID;
+  final String phone;
+  final String createdAt;
+  final String userCreatedAt;
+  final String slug;
+  final String idID;
+  final int userV;
+  final int v;
+  final bool userIsVerified;
   final bool isApproved;
   final List<JobProviderJobModel> jobs;
 
   JobProviderModel({
+    required this.userID,
+    required this.phone,
+    required this.createdAt,
+    required this.userCreatedAt,
+    required this.slug,
+    required this.idID,
+    required this.userV,
+    required this.v,
+    required this.userIsVerified,
     required this.id,
     required this.location,
     required this.name,
@@ -43,23 +61,67 @@ class JobProviderModel {
       dateOfStartup: json['dateOfStartup'],
       email: json['email'],
       isApproved: json['isApproved'],
-      //jobs: json['jobs'].map((e) => JobProviderJobModel.fromJson(e)).toList(),
+      userID: json['user']['_id'],
+      userCreatedAt: json['user']['createdAt'],
+      userIsVerified: json['user']['isVerified'],
+      userV: json['user']['__v'],
       jobs: List<JobProviderJobModel>.from(
-          json["jobs"].map((x) => JobProviderJobModel.fromJson(x))),
+        json["jobs"].map((x) => JobProviderJobModel.fromJson(x)),
+      ),
       profileImage: json['profileImage'],
+      v: json['__v'],
+      createdAt: json['createdAt'],
+      idID: json['id'],
+      phone: json['user']['phone'],
+      slug: json['slug'],
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
-      'name': name,
-      'dateOfStartup': dateOfStartup,
-      'companyDescription': companyDescription,
-      'bio': bio,
-      'email': email,
-      'fields': fields,
-      'location': {
-        'formattedAddress': location,
+      "location": {"formattedAddress": location},
+      "_id": id,
+      "fields": fields,
+      "name": name,
+      "dateOfStartup": dateOfStartup,
+      "bio": bio,
+      "email": email,
+      "companyDescription": companyDescription,
+      "profileImage": profileImage,
+      "address": address,
+      "user": {
+        "role": role,
+        "isVerified": userIsVerified,
+        "_id": userID,
+        "phone": phone,
+        "createdAt": userCreatedAt,
+        "__v": userV,
+        "email": email
       },
+      "createdAt": createdAt,
+      "slug": slug,
+      "__v": v,
+      "isApproved": isApproved,
+      "jobs": List.from(jobs.map((e) => JobProviderJobModel(
+            createdAt: e.createdAt,
+            v: e.v,
+            state: e.state,
+            salary: e.salary,
+            longitude: e.longitude,
+            locationType: e.locationType,
+            latitude: e.latitude,
+            jobType: e.jobType,
+            jobProviderID: e.jobProviderID,
+            jobDescription: e.jobDescription,
+            isDone: e.isDone,
+            id: e.id,
+            formattedAddress: e.formattedAddress,
+            deadline: e.deadline,
+            country: e.country,
+            jobQualifications: e.jobQualifications,
+            name: e.name,
+          ).toJson())),
+      "id": idID
     };
   }
 }

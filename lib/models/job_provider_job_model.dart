@@ -12,8 +12,10 @@ class JobProviderJobModel {
   final String jobDescription;
   final String jobQualifications;
   final String jobProviderID;
-  final int salary;
+  final String createdAt;
   final bool isDone;
+  final int salary;
+  final int v;
 
   JobProviderJobModel({
     required this.locationType,
@@ -31,6 +33,8 @@ class JobProviderJobModel {
     required this.jobQualifications,
     required this.salary,
     required this.jobProviderID,
+    required this.createdAt,
+    required this.v,
   });
 
   factory JobProviderJobModel.fromJson(Map<String, dynamic> json) {
@@ -50,6 +54,30 @@ class JobProviderJobModel {
       jobQualifications: json['jobQualifications'],
       salary: json['salary'],
       jobProviderID: json['jobProvider'],
+      createdAt: json['createdAt'],
+      v: json['__v'],
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      "location": {
+        "type": locationType,
+        "coordinates": [longitude, longitude],
+        "formattedAddress": formattedAddress,
+        "state": state,
+        "country": country
+      },
+      "jobType": jobType,
+      "isDone": isDone,
+      "_id": id,
+      "name": name,
+      "deadline": deadline,
+      "jobDescription": jobDescription,
+      "jobQualifications": jobQualifications,
+      "salary": salary,
+      "jobProvider": jobProviderID,
+      "createdAt": createdAt,
+      "__v": v
+    };
   }
 }

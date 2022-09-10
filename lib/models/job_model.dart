@@ -13,8 +13,11 @@ class JobModel {
   final String jobQualifications;
   final String jobProviderID;
   final String jobProviderName;
-  final int salary;
+  final String jobProviderIDID;
+  final String createdAt;
   final bool isDone;
+  final int salary;
+  final int v;
 
   JobModel({
     required this.locationType,
@@ -33,6 +36,9 @@ class JobModel {
     required this.salary,
     required this.jobProviderID,
     required this.jobProviderName,
+    required this.jobProviderIDID,
+    required this.createdAt,
+    required this.v,
   });
 
   factory JobModel.fromJson(Map<String, dynamic> json) {
@@ -52,43 +58,36 @@ class JobModel {
       jobQualifications: json['jobQualifications'],
       salary: json['salary'],
       jobProviderID: json['jobProvider']['_id'],
+      jobProviderIDID: json['jobProvider']['id'],
       jobProviderName: json['jobProvider']['name'],
+      createdAt: json['createdAt'],
+      v: json['__v'],
     );
   }
-  JobModel copyWith({
-    required String locationType,
-    required double longitude,
-    required double latitude,
-    required String formattedAddress,
-    required String state,
-    required String country,
-    required String jobType,
-    required String id,
-    required String name,
-    required String deadline,
-    required String jobDescription,
-    required String jobQualifications,
-    required String jobProviderID,
-    required String jobProviderName,
-    required int salary,
-    required bool isDone,
-  }) =>
-      JobModel(
-        country: country,
-        deadline: deadline,
-        formattedAddress: formattedAddress,
-        id: id,
-        isDone: isDone,
-        jobDescription: jobDescription,
-        jobProviderID: jobProviderID,
-        jobProviderName: jobProviderName,
-        name: name,
-        jobQualifications: jobQualifications,
-        jobType: jobType,
-        latitude: latitude,
-        locationType: locationType,
-        longitude: latitude,
-        salary: salary,
-        state: state,
-      );
+  Map<String, dynamic> toJson() {
+    return {
+      "location": {
+        "type": locationType,
+        "coordinates": [latitude, longitude],
+        "formattedAddress": formattedAddress,
+        "state": state,
+        "country": country
+      },
+      "jobType": jobType,
+      "isDone": isDone,
+      "_id": id,
+      "name": name,
+      "deadline": deadline,
+      "jobDescription": jobDescription,
+      "jobQualifications": jobQualifications,
+      "salary": salary,
+      "jobProvider": {
+        "_id": jobProviderID,
+        "name": jobProviderName,
+        "id": jobProviderIDID,
+      },
+      "createdAt": createdAt,
+      "__v": v,
+    };
+  }
 }

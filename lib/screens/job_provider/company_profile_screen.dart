@@ -1,9 +1,5 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
@@ -25,32 +21,6 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
   late JobProviderModel jobProvider;
 
   @override
-  void initState() {
-    super.initState();
-    getJobProvider();
-  }
-
-  Future<void> getJobProvider() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobproviders/me');
-    var response = await http.get(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
-    if (response.statusCode == 200) {
-      var decodedJson = convert.jsonDecode(response.body);
-      setState(() {
-        jobProvider = decodedJson['data'];
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
@@ -66,14 +36,7 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => CompanyEditProfileScreen(
-                  id: jobProvider.id,
-                  description: jobProvider.companyDescription,
-                  location: jobProvider.location,
-                  email: jobProvider.email,
-                  bio: jobProvider.bio,
-                  field: jobProvider.fields.toString(),
-                  name: jobProvider.name,
-                  startup: jobProvider.dateOfStartup,
+                  jobProviderModel: jobProvider,
                 ),
               ),
             );
