@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/job_provider_model.dart';
 
-class JobProvider {
+class JobProvider extends ChangeNotifier {
   Future<List> getCurrentJobProvider() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
@@ -22,6 +23,7 @@ class JobProvider {
       var decodedJson = jsonDecode(response.body);
       return decodedJson['data'];
     } else {
+      print(response.statusCode);
       throw 'there is problem';
     }
   }
@@ -76,6 +78,7 @@ class JobProvider {
       ),
     );
     if (response.statusCode == 200) {
+      notifyListeners();
       return response;
     } else {
       throw 'there is a problem';

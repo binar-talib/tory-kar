@@ -3,9 +3,12 @@ import 'dart:ui' as ui;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:tory_kar/networking/jobs.dart';
 import 'package:tory_kar/screens/choose_language_screen.dart';
 
 import 'modules/constants.dart';
+import 'networking/job_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +25,10 @@ void main() async {
       ],
       path: 'assets/translations',
       fallbackLocale: const Locale('en', 'US'),
-      child: const MyApp(),
+      child: MultiProvider(providers: [
+        ChangeNotifierProvider(create: (context) => JobProvider()),
+        ChangeNotifierProvider(create: (context) => Jobs()),
+      ], child: const MyApp()),
     ),
   );
 }

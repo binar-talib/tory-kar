@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
           String userRole = await _authentication.getLoggingUser(
             token: prefs.getString('token'),
           );
-
+          String jobProviderId = prefs.getString('_id')!;
           if (userRole == 'jobSeeker') {
             Navigator.push(
               context,

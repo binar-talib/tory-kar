@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
@@ -45,7 +46,8 @@ class _CompanyProfileScreenState extends State<CompanyProfileScreen> {
         ),
       ),
       body: FutureBuilder<List>(
-          future: JobProvider().getCurrentJobProvider(),
+          future: Provider.of<JobProvider>(context, listen: true)
+              .getCurrentJobProvider(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               jobProvider = JobProviderModel.fromJson(snapshot.data![0]);

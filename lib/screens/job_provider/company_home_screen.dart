@@ -24,7 +24,22 @@ class CompanyHomeScreen extends StatefulWidget {
 
 class _CompanyHomeScreenState extends State<CompanyHomeScreen> {
   late JobProviderModel jobProvider;
+  late Future<List> fetchJobProvider;
   List<JobProviderJobModel> searchedJobs = [];
+  List<JobProviderJobModel> allJobs = [];
+  @override
+  void initState() {
+    super.initState();
+    fetch();
+  }
+
+  fetch() {
+    fetchJobProvider = JobProvider().getCurrentJobProvider();
+    fetchJobProvider.then((value) {
+      jobProvider = JobProviderModel.fromJson(value[0]);
+      searchedJobs = allJobs = jobProvider.jobs;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,17 +78,14 @@ class _CompanyHomeScreenState extends State<CompanyHomeScreen> {
                     leftMargin: 0.0,
                     rightMargin: 0.0,
                     onChanged: (String query) {
-                      // int i = 0;
-                      // final searchedJobs = this.searchedJobs.where((job) {
-                      //   final jobTitle =
-                      //       jobProvider[0].jobs[i].name.toLowerCase();
-                      //   final searchTitle = query.toLowerCase();
-                      //   i++;
-                      //   return jobTitle.contains(searchTitle);
-                      // }).toList();
-                      // setState(() {
-                      //   this.searchedJobs = searchedJobs;
-                      // });
+                      final searchedJobs = allJobs.where((job) {
+                        final jobTitle = job.name.toLowerCase();
+                        final searchTitle = query.toLowerCase();
+                        return jobTitle.contains(searchTitle);
+                      }).toList();
+                      setState(() {
+                        this.searchedJobs = searchedJobs;
+                      });
                     },
                   ),
                 ),
@@ -94,60 +106,68 @@ class _CompanyHomeScreenState extends State<CompanyHomeScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List>(
-              future: JobProvider().getCurrentJobProvider(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  jobProvider = JobProviderModel.fromJson(snapshot.data![0]);
-                  searchedJobs = jobProvider.jobs;
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(
-                      top: 10.0,
-                      left: 20.0,
-                      right: 20.0,
-                      bottom: 60.0,
-                    ),
-                    itemCount: searchedJobs.length,
-                    itemBuilder: (context, index) {
-                      return CompanyJobCards(
-                        title: searchedJobs[index].name,
-                        salary: searchedJobs[index].salary,
-                        type: searchedJobs[index].jobType,
-                        location: searchedJobs[index].formattedAddress,
-                        deadline: searchedJobs[index].deadline,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CompanyJobDetailsPageViewScreen(
-                                location: searchedJobs[index].formattedAddress,
-                                title: searchedJobs[index].name,
-                                salary: searchedJobs[index].salary,
-                                jobType: searchedJobs[index].jobType,
-                                deadline: searchedJobs[index].deadline,
-                                description: searchedJobs[index].jobDescription,
-                                qualification:
-                                    searchedJobs[index].jobQualifications,
-                                companyBrief: jobProvider.companyDescription,
-                                id: searchedJobs[index].id,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('${snapshot.error}'),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
+            child: RefreshIndicator(
+              onRefresh: () async {
+                setState(() {
+                  fetch();
+                });
               },
+              child: FutureBuilder<List>(
+                future: fetchJobProvider,
+                // JobProvider().getCurrentJobProvider(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(
+                        top: 10.0,
+                        left: 20.0,
+                        right: 20.0,
+                        bottom: 60.0,
+                      ),
+                      itemCount: searchedJobs.length,
+                      itemBuilder: (context, index) {
+                        return CompanyJobCards(
+                          title: searchedJobs[index].name,
+                          salary: searchedJobs[index].salary,
+                          type: searchedJobs[index].jobType,
+                          location: searchedJobs[index].formattedAddress,
+                          deadline: searchedJobs[index].deadline,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CompanyJobDetailsPageViewScreen(
+                                  location:
+                                      searchedJobs[index].formattedAddress,
+                                  title: searchedJobs[index].name,
+                                  salary: searchedJobs[index].salary,
+                                  jobType: searchedJobs[index].jobType,
+                                  deadline: searchedJobs[index].deadline,
+                                  description:
+                                      searchedJobs[index].jobDescription,
+                                  qualification:
+                                      searchedJobs[index].jobQualifications,
+                                  companyBrief: jobProvider.companyDescription,
+                                  id: searchedJobs[index].id,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('${snapshot.error}'),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
             ),
           )
         ],

@@ -1,12 +1,13 @@
 import 'dart:convert' as convert;
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/add_edit_job_model.dart';
 
-class Jobs {
+class Jobs extends ChangeNotifier {
   Future<List> getAllJobs() async {
     http.Response response = await http.get(
       Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobs'),
@@ -14,7 +15,20 @@ class Jobs {
     if (response.statusCode == 200) {
       var decodedJson = convert.jsonDecode(response.body);
       var data = decodedJson['data'];
-      //print(data);
+      return data;
+    } else {
+      throw Exception('Failed to load Jobs');
+    }
+  }
+
+  Future<List> getJobsForJobProvider({required String id}) async {
+    http.Response response = await http.get(
+      Uri.parse(
+          'https://tory-kar-1.herokuapp.com/api/v1/jobproviders/$id/jobs'),
+    );
+    if (response.statusCode == 200) {
+      var decodedJson = convert.jsonDecode(response.body);
+      var data = decodedJson['data'];
       return data;
     } else {
       throw Exception('Failed to load Jobs');
@@ -53,6 +67,7 @@ class Jobs {
       ),
     );
     if (response.statusCode == 200) {
+      notifyListeners();
       return response;
     } else {
       throw 'there is a problem';
@@ -90,6 +105,7 @@ class Jobs {
       ),
     );
     if (response.statusCode == 200) {
+      notifyListeners();
       return response;
     } else {
       throw 'there is a problem';

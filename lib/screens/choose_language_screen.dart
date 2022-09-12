@@ -34,6 +34,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
         ),
       );
     } else if (prefs.getString('role') == 'jobProvider') {
+      String jobProviderId = prefs.getString("_id")!;
       Navigator.push(
         context,
         MaterialPageRoute(

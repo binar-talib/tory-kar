@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
@@ -67,7 +68,9 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
           width: 50,
           child: CustomTextButton(
             onPressed: () async {
-              http.Response response = await JobProvider().updateJobProvider(
+              http.Response response =
+                  await Provider.of<JobProvider>(context, listen: false)
+                      .updateJobProvider(
                 id: id,
                 name: name.text,
                 email: email.text,
@@ -145,7 +148,7 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
                 controller: bio,
                 label: 'Bio',
                 hintText: 'Bio about company',
-                onChanged: (String) {},
+                onChanged: (string) {},
               ),
               const SizedBox(height: 15.0),
               CustomTextField(
@@ -181,7 +184,7 @@ class _CompanyEditProfileScreenState extends State<CompanyEditProfileScreen> {
                 label: 'Company Description',
                 hintText: 'Description about your company...',
                 maxLines: 15,
-                onChanged: (String) {},
+                onChanged: (string) {},
               ),
             ],
           ),
