@@ -7,6 +7,7 @@ import 'package:tory_kar/custom_widgets/build_dots.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/next_button.dart';
+import 'package:tory_kar/networking/authentication.dart';
 import 'package:tory_kar/screens/job_seeker/enter_mobile_number_screen.dart';
 
 import 'enter_password_screen.dart';
@@ -16,8 +17,7 @@ import 'enter_personal_info_screen.dart';
 import 'enter_verify_code_screen.dart';
 
 class SignUpPageViewScreen extends StatefulWidget {
-  const SignUpPageViewScreen({Key? key, required this.role}) : super(key: key);
-  final String role;
+  const SignUpPageViewScreen({Key? key}) : super(key: key);
   @override
   State<SignUpPageViewScreen> createState() => _SignUpPageViewScreenState();
 }
@@ -26,33 +26,10 @@ class _SignUpPageViewScreenState extends State<SignUpPageViewScreen> {
   int _currentPage = 0;
   final PageController _controller = PageController();
 
-  late String role;
-  @override
-  initState() {
-    super.initState();
-    role = widget.role;
-  }
-
-  String mobileNumber = '';
-  String password = '';
-  String confirmPassword = '';
-  String name = '';
-  String dateOfBirth = '';
-  String gendar = '';
-  String bio = '';
-  String email = '';
-  String skills = '';
-  List languages = [];
-  String profileImage = '';
-  String CVs = '';
-  String address = '';
-
   createNewUser() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    print(prefs.getStringList('selectedLanguages'));
-    print(prefs.getString('gendar'));
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobseekers');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobseekers');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -61,13 +38,13 @@ class _SignUpPageViewScreenState extends State<SignUpPageViewScreen> {
       },
       body: convert.jsonEncode(
         <String, dynamic>{
-          "name": name,
-          "dateOfBirth": dateOfBirth,
-          "gendar": prefs.getString('gendar')!.toLowerCase(),
-          "bio": bio,
-          "email": email,
-          "skills": skills,
-          "languages": prefs.getStringList('selectedLanguages'),
+          "name": Authentication.fullName,
+          "dateOfBirth": Authentication.dateOfBirth,
+          "gendar": Authentication.gendar,
+          "bio": Authentication.bio,
+          "email": Authentication.email,
+          "skills": Authentication.skills,
+          "languages": Authentication.selectedLanguages,
           "profileImage": "no-image.jpg",
           "CVs": ["cv1.pdf", "cv2.pdf"],
           "address": "Erbil"
@@ -135,51 +112,19 @@ class _SignUpPageViewScreenState extends State<SignUpPageViewScreen> {
                 //     });
                 //   },
                 // ),
-                EnterMobileNumberScreen(
-                  onChanged: (String value) {
-                    mobileNumber = value;
-                  },
-                ),
-                EnterPasswordScreen(
-                  onChangedConfirmPassword: (String value) {
-                    confirmPassword = value;
-                  },
-                  onChangedPassword: (String value) {
-                    password = value;
-                  },
-                ),
-                EnterVerifyCodeScreen(
-                  mobileNumber: mobileNumber,
-                  password: password,
-                  role: role,
-                ),
-                EnterPersonalInformationScreen(
-                  bioOnChanged: (String value) {
-                    bio = value;
-                  },
-                  dateOfBirthOnChanged: (String value) {
-                    dateOfBirth = value;
-                  },
-                  emailOnChanged: (String value) {
-                    email = value;
-                  },
-                  fullNameOnChanged: (String value) {
-                    name = value;
-                  },
-                ),
-                EnterPersonalInformation2Screen(
-                  onChangedSkills: (String value) {
-                    skills = value;
-                  },
-                ),
-                EnterPersonalInformation3Screen(),
+                EnterMobileNumberScreen(),
+                const EnterPasswordScreen(),
+                const EnterVerifyCodeScreen(),
+                const EnterPersonalInformationScreen(),
+                const EnterPersonalInformation2Screen(),
+                const EnterPersonalInformation3Screen(),
               ],
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              7,
+              6,
               (index) => BuildDots(
                 index: index,
                 currentPage: _currentPage,

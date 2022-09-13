@@ -5,6 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Authentication {
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  static String phone = '';
+  static String role = '';
+  static String password = '';
+  static String confirmPassword = '';
+  static String fullName = '';
+  static String dateOfBirth = '';
+  static String gendar = 'Select Gender';
+  static String bio = '';
+  static String email = '';
+  static String skills = '';
+  static List<String> selectedLanguages = [];
 
   Future<int> userLogin({
     required String phone,

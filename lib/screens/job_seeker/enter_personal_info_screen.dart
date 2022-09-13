@@ -1,23 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_drop_down_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/modules/constants.dart';
 
-class EnterPersonalInformationScreen extends StatefulWidget {
-  const EnterPersonalInformationScreen({
-    Key? key,
-    required this.fullNameOnChanged,
-    required this.dateOfBirthOnChanged,
-    required this.bioOnChanged,
-    required this.emailOnChanged,
-  }) : super(key: key);
+import '../../networking/authentication.dart';
 
-  final Function(String) fullNameOnChanged;
-  final Function(String) dateOfBirthOnChanged;
-  final Function(String) bioOnChanged;
-  final Function(String) emailOnChanged;
+class EnterPersonalInformationScreen extends StatefulWidget {
+  const EnterPersonalInformationScreen({Key? key}) : super(key: key);
 
   @override
   State<EnterPersonalInformationScreen> createState() =>
@@ -26,8 +16,21 @@ class EnterPersonalInformationScreen extends StatefulWidget {
 
 class _EnterPersonalInformationScreenState
     extends State<EnterPersonalInformationScreen> {
-  List<String> gender = ['Male', 'Female'];
-  String _selectedGender = 'Male';
+  List<String> gender = ['Select Gender', 'Male', 'Female'];
+  String _selectedGender = Authentication.gendar;
+
+  final TextEditingController fullNameController = TextEditingController(
+    text: Authentication.fullName,
+  );
+  final TextEditingController dateOfBirthController = TextEditingController(
+    text: Authentication.dateOfBirth,
+  );
+  final TextEditingController bioController = TextEditingController(
+    text: Authentication.bio,
+  );
+  final TextEditingController emailController = TextEditingController(
+    text: Authentication.email,
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,25 +49,30 @@ class _EnterPersonalInformationScreenState
               label: 'Full Name',
               hintText: 'First  Middle  Last  Name',
               icon: const Icon(Icons.account_circle_rounded),
-              onChanged: widget.fullNameOnChanged,
+              onChanged: (fullName) {
+                Authentication.fullName = fullName;
+              },
+              controller: fullNameController,
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
               label: 'Date of Birth',
-              hintText: 'DD/MM/YYYY',
+              hintText: 'DD-MM-YYYY',
               icon: const Icon(Icons.calendar_today_rounded),
-              onChanged: widget.dateOfBirthOnChanged,
+              onChanged: (dateOfBirth) {
+                Authentication.dateOfBirth = dateOfBirth;
+              },
+              controller: dateOfBirthController,
             ),
             const SizedBox(height: 15.0),
             CustomDropDownButton(
               label: 'Gender',
               selectedValue: _selectedGender,
               listOfValues: gender,
-              onChanged: (String? newValue) {
-                setState(() async {
+              onChanged: (newValue) {
+                setState(() {
                   _selectedGender = newValue!;
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setString('gendar', _selectedGender);
+                  Authentication.gendar = newValue;
                 });
               },
             ),
@@ -72,14 +80,20 @@ class _EnterPersonalInformationScreenState
             CustomTextArea(
               label: 'Bio',
               hintText: 'Bio about yourself',
-              onChanged: widget.bioOnChanged,
+              onChanged: (bio) {
+                Authentication.bio = bio;
+              },
+              controller: bioController,
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
               label: 'Email',
               hintText: 'example@info.com',
               icon: const Icon(Icons.mail_outline_rounded),
-              onChanged: widget.emailOnChanged,
+              onChanged: (email) {
+                Authentication.email = email;
+              },
+              controller: emailController,
             ),
             MediaQuery.of(context).viewInsets.bottom == 0
                 ? const SizedBox(height: 0)

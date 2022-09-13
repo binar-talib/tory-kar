@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_list_tile.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
 import 'package:tory_kar/modules/constants.dart';
 import 'package:tory_kar/modules/languages.dart';
+import 'package:tory_kar/networking/authentication.dart';
 
 class EnterPersonalInformation2Screen extends StatefulWidget {
-  const EnterPersonalInformation2Screen(
-      {Key? key, required this.onChangedSkills})
-      : super(key: key);
-  final Function(String) onChangedSkills;
+  const EnterPersonalInformation2Screen({Key? key}) : super(key: key);
+  // final Function(String) onChangedSkills;
 
   @override
   State<EnterPersonalInformation2Screen> createState() =>
@@ -20,7 +18,10 @@ class EnterPersonalInformation2Screen extends StatefulWidget {
 
 class _EnterPersonalInformation2ScreenState
     extends State<EnterPersonalInformation2Screen> {
-  final List<String> _selectedLanguages = [];
+  final List<String> _selectedLanguages = Authentication.selectedLanguages;
+  final TextEditingController skillsController = TextEditingController(
+    text: Authentication.skills,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +36,10 @@ class _EnterPersonalInformation2ScreenState
               label: 'Skills',
               hintText: 'Write your skills...',
               maxLines: 15,
-              onChanged: widget.onChangedSkills,
+              onChanged: (skills) {
+                Authentication.skills = skills;
+              },
+              controller: skillsController,
             ),
             const SizedBox(height: 15),
             const AutoSizeText15(text: 'Languages'),
@@ -64,14 +68,12 @@ class _EnterPersonalInformation2ScreenState
                   ),
                 ),
                 suggestionsCallback: (pattern) {
-                  int i = 0;
-                  final _selectedLanguages = languages.where((language) {
-                    final languageName = languages[i].toLowerCase();
+                  final selectedLanguages = languages.where((language) {
+                    final languageName = language.toLowerCase();
                     final searchLanguage = pattern.toLowerCase();
-                    i++;
                     return languageName.contains(searchLanguage);
                   }).toList();
-                  return _selectedLanguages;
+                  return selectedLanguages;
                 },
                 itemBuilder: (context, suggestion) {
                   return ListTile(
@@ -79,12 +81,10 @@ class _EnterPersonalInformation2ScreenState
                   );
                 },
                 onSuggestionSelected: (suggestion) {
-                  setState(() async {
+                  setState(() {
                     _selectedLanguages.add("$suggestion");
+                    Authentication.selectedLanguages.add("$suggestion");
                     suggestion = " ";
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setStringList(
-                        "selectedLanguages", _selectedLanguages);
                   });
                 },
               ),
@@ -102,6 +102,7 @@ class _EnterPersonalInformation2ScreenState
                   onPressed: () {
                     setState(() {
                       _selectedLanguages.remove(i);
+                      Authentication.selectedLanguages.remove(i);
                     });
                   },
                   icon: const Icon(

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/modules/constants.dart';
 
+import '../../networking/authentication.dart';
+
 class EnterPasswordScreen extends StatefulWidget {
-  const EnterPasswordScreen(
-      {Key? key, this.onChangedPassword, this.onChangedConfirmPassword})
-      : super(key: key);
-  final Function(String)? onChangedPassword;
-  final Function(String)? onChangedConfirmPassword;
+  const EnterPasswordScreen({Key? key}) : super(key: key);
+  // final Function(String)? onChangedPassword;
+  // final Function(String)? onChangedConfirmPassword;
   @override
   State<EnterPasswordScreen> createState() => _EnterPasswordScreenState();
 }
@@ -15,6 +15,12 @@ class EnterPasswordScreen extends StatefulWidget {
 class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
   bool obscureText1 = true;
   bool obscureText2 = true;
+  final TextEditingController passwordController = TextEditingController(
+    text: Authentication.password,
+  );
+  final TextEditingController confirmPasswordController = TextEditingController(
+    text: Authentication.confirmPassword,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,10 @@ class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
               height: screenHeight * 0.15,
             ),
             CustomTextField(
-              onChanged: widget.onChangedPassword,
+              controller: passwordController,
+              onChanged: (password) {
+                Authentication.password = password;
+              },
               obscureText: obscureText1,
               icon: const Icon(Icons.lock_rounded),
               hintText: '***********',
@@ -51,7 +60,10 @@ class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
-              onChanged: widget.onChangedConfirmPassword,
+              controller: confirmPasswordController,
+              onChanged: (confirmPassword) {
+                Authentication.confirmPassword = confirmPassword;
+              },
               obscureText: obscureText2,
               icon: const Icon(Icons.call_rounded),
               hintText: '***********',

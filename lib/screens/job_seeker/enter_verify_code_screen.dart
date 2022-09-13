@@ -6,17 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/authentication.dart';
 
 class EnterVerifyCodeScreen extends StatefulWidget {
-  const EnterVerifyCodeScreen({
-    Key? key,
-    required this.mobileNumber,
-    required this.role,
-    required this.password,
-  }) : super(key: key);
-  final String mobileNumber;
-  final String role;
-  final String password;
+  const EnterVerifyCodeScreen({Key? key}) : super(key: key);
+  // final String mobileNumber;
+  // final String role;
+  // final String password;
 
   @override
   State<EnterVerifyCodeScreen> createState() => _EnterVerifyCodeScreenState();
@@ -33,8 +29,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
   Future<void> registerUser() async {
     final prefs = await SharedPreferences.getInstance();
 
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/register');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/register');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -42,9 +37,9 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
       },
       body: convert.jsonEncode(
         <String, dynamic>{
-          'phone': widget.mobileNumber,
-          'password': widget.password,
-          'role': widget.role,
+          'phone': Authentication.phone,
+          'password': Authentication.password,
+          'role': Authentication.role,
         },
       ),
     );
@@ -61,7 +56,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
   }
 
   Future<void> sendSMSVerification(String token) async {
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/sendsms');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/sendsms');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -69,7 +64,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
       },
       body: convert.jsonEncode(
         <String, dynamic>{
-          'phone': widget.mobileNumber,
+          'phone': Authentication.phone,
         },
       ),
     );
@@ -77,14 +72,14 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
       print('send sms successfull  ${response.statusCode}');
     } else {
       var decodedJson = convert.jsonDecode(response.body);
-      print('send sms fail ${decodedJson['error']}');
+
+      print('send sms fail ${decodedJson['error']} ${response.statusCode}');
     }
   }
 
   Future<void> checkSMSVerification(int code) async {
     final prefs = await SharedPreferences.getInstance();
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/checksms');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -92,7 +87,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
       },
       body: convert.jsonEncode(
         <String, dynamic>{
-          'phone': widget.mobileNumber,
+          'phone': Authentication.phone,
           'code': code,
         },
       ),
@@ -107,6 +102,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
       prefs.setBool('verified', true);
     } else {
       print(response.statusCode);
+      print(response.body);
     }
   }
 
@@ -189,7 +185,7 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
             ),
             const SizedBox(height: 40.0),
             Text(
-              'Sent to this number: ${widget.mobileNumber}',
+              'Sent to this number: ${Authentication.phone}',
               style: const TextStyle(
                 fontSize: 15.0,
                 color: Color(0x802B2D42),

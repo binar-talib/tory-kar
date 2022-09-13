@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,11 +9,11 @@ import 'package:tory_kar/custom_widgets/filter_sheet.dart';
 import 'package:tory_kar/custom_widgets/profile_button.dart';
 import 'package:tory_kar/custom_widgets/search_field.dart';
 import 'package:tory_kar/modules/necessary_methods.dart';
-import 'package:tory_kar/networking/jobs.dart';
 import 'package:tory_kar/screens/job_seeker/user_profile_screen.dart';
 
 import '../../custom_widgets/job_cards.dart';
 import '../../models/job_model.dart';
+import '../../networking/jobs.dart';
 import 'job_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,12 +28,27 @@ class _HomeScreenState extends State<HomeScreen> {
   late List<JobModel> searchedJobs = [];
   late List<JobModel> allJobs = [];
 
-  Future<void> refresh() async {}
+  Future<void> refresh() async {
+    setState(() {
+      getAllJobs = Jobs().getAllJobs();
+      getAllJobs.then((value) {
+        searchedJobs =
+            allJobs = value.map((e) => JobModel.fromJson(e)).toList();
+      });
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    fetch();
+  }
+
+  fetch() async {
     getAllJobs = Jobs().getAllJobs();
+    getAllJobs.then((value) {
+      searchedJobs = allJobs = value.map((e) => JobModel.fromJson(e)).toList();
+    });
   }
 
   @override
@@ -125,12 +138,12 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: FutureBuilder<List>(
                 future: getAllJobs,
+                // Provider.of<Jobs>(context).getAllJobs(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    allJobs = snapshot.data!
-                        .map((e) => JobModel.fromJson(e))
-                        .toList();
-                    searchedJobs = allJobs;
+                    // searchedJobs = allJobs = snapshot.data!
+                    //     .map((e) => JobModel.fromJson(e))
+                    //     .toList();
                     return ListView.builder(
                       padding: const EdgeInsets.only(
                         top: 10.0,
