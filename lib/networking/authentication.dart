@@ -71,4 +71,84 @@ class Authentication {
       throw '';
     }
   }
+
+  Future<String> registerUser({
+    required String phone,
+    required String password,
+    required String role,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/register');
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'phone': phone,
+          'password': password,
+          'role': role,
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      var decodedJson = jsonDecode(response.body);
+      await prefs.setString('token', decodedJson['token']);
+      String token = decodedJson['token'];
+      print('register successful  ${response.statusCode}');
+      return token;
+    } else {
+      var decodedJson = jsonDecode(response.body);
+      throw 'register fail ${decodedJson['error']}';
+    }
+  }
+
+  Future<void> sendSMSVerification({required String token}) async {
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/sendsms');
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'phone': Authentication.phone,
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      print('send sms successfull  ${response.statusCode}');
+    } else {
+      var decodedJson = jsonDecode(response.body);
+      print('send sms fail ${decodedJson['error']} ${response.statusCode}');
+    }
+  }
+
+  Future<int> checkSMSVerification(
+      {required int code, required String phone}) async {
+    final prefs = await SharedPreferences.getInstance();
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'phone': phone,
+          'code': code,
+        },
+      ),
+    );
+    if (response.statusCode == 200) {
+      print('check sms successful  ${response.statusCode}');
+      prefs.setBool('verified', true);
+      return 200;
+    } else {
+      var decodedJson = jsonDecode(response.body);
+      throw 'send sms fail ${decodedJson['error']}';
+    }
+  }
 }

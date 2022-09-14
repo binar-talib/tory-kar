@@ -6,8 +6,6 @@ import '../../networking/authentication.dart';
 
 class EnterPasswordScreen extends StatefulWidget {
   const EnterPasswordScreen({Key? key}) : super(key: key);
-  // final Function(String)? onChangedPassword;
-  // final Function(String)? onChangedConfirmPassword;
   @override
   State<EnterPasswordScreen> createState() => _EnterPasswordScreenState();
 }
@@ -15,9 +13,11 @@ class EnterPasswordScreen extends StatefulWidget {
 class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
   bool obscureText1 = true;
   bool obscureText2 = true;
+
   final TextEditingController passwordController = TextEditingController(
     text: Authentication.password,
   );
+
   final TextEditingController confirmPasswordController = TextEditingController(
     text: Authentication.confirmPassword,
   );
@@ -53,9 +53,11 @@ class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
                     obscureText1 = !obscureText1;
                   });
                 },
-                icon: Icon(obscureText1
-                    ? Icons.visibility_off_rounded
-                    : Icons.visibility),
+                icon: Icon(
+                  obscureText1
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility,
+                ),
               ),
             ),
             const SizedBox(height: 15.0),
@@ -75,9 +77,11 @@ class _EnterPasswordScreenState extends State<EnterPasswordScreen> {
                     obscureText2 = !obscureText2;
                   });
                 },
-                icon: Icon(obscureText2
-                    ? Icons.visibility_off_rounded
-                    : Icons.visibility),
+                icon: Icon(
+                  obscureText2
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility,
+                ),
               ),
             ),
             MediaQuery.of(context).viewInsets.bottom == 0

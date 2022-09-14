@@ -57,7 +57,7 @@ class _EnterPersonalInformationScreenState
             const SizedBox(height: 15.0),
             CustomTextField(
               label: 'Date of Birth',
-              hintText: 'DD-MM-YYYY',
+              hintText: 'YYYY-MM-DD',
               icon: const Icon(Icons.calendar_today_rounded),
               onChanged: (dateOfBirth) {
                 Authentication.dateOfBirth = dateOfBirth;

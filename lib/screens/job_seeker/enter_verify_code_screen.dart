@@ -1,8 +1,5 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/modules/constants.dart';
@@ -10,9 +7,6 @@ import 'package:tory_kar/networking/authentication.dart';
 
 class EnterVerifyCodeScreen extends StatefulWidget {
   const EnterVerifyCodeScreen({Key? key}) : super(key: key);
-  // final String mobileNumber;
-  // final String role;
-  // final String password;
 
   @override
   State<EnterVerifyCodeScreen> createState() => _EnterVerifyCodeScreenState();
@@ -25,86 +19,47 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
     registerUser();
   }
 
+  final Authentication authentication = Authentication();
+  String message = '';
   String _token = '';
+
   Future<void> registerUser() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/register');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': Authentication.phone,
-          'password': Authentication.password,
-          'role': Authentication.role,
-        },
-      ),
+    _token = await authentication.registerUser(
+      role: Authentication.role,
+      phone: Authentication.phone,
+      password: Authentication.password,
     );
-    if (response.statusCode == 200) {
-      var decodedJson = convert.jsonDecode(response.body);
-      await prefs.setString('token', decodedJson['token']);
-      _token = decodedJson['token'];
-      sendSMSVerification(decodedJson['token']);
-      print('register successful  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-      print('register fail ${decodedJson['error']}');
-    }
+    authentication.sendSMSVerification(token: _token);
   }
 
-  Future<void> sendSMSVerification(String token) async {
-    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/sendsms');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': Authentication.phone,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print('send sms successfull  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-
-      print('send sms fail ${decodedJson['error']} ${response.statusCode}');
-    }
-  }
-
-  Future<void> checkSMSVerification(int code) async {
-    final prefs = await SharedPreferences.getInstance();
-    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': Authentication.phone,
-          'code': code,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print('send sms successfull  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-      print('send sms fail ${decodedJson['error']}');
-    }
-    if (response.statusCode == 200) {
-      prefs.setBool('verified', true);
-    } else {
-      print(response.statusCode);
-      print(response.body);
-    }
-  }
+  // Future<void> checkSMSVerification({required int code}) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
+  //   var response = await http.post(
+  //     url,
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //     },
+  //     body: convert.jsonEncode(
+  //       <String, dynamic>{
+  //         'phone': Authentication.phone,
+  //         'code': code,
+  //       },
+  //     ),
+  //   );
+  //   if (response.statusCode == 200) {
+  //     print('send sms successfull  ${response.statusCode}');
+  //   } else {
+  //     var decodedJson = convert.jsonDecode(response.body);
+  //     print('send sms fail ${decodedJson['error']}');
+  //   }
+  //   if (response.statusCode == 200) {
+  //     prefs.setBool('verified', true);
+  //   } else {
+  //     print(response.statusCode);
+  //     print(response.body);
+  //   }
+  // }
 
   String otp1 = '0';
   String otp2 = '0';
@@ -176,8 +131,17 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
                     if (value.length == 1) {
                       final prefs = await SharedPreferences.getInstance();
                       prefs.setBool('verified', false);
-                      checkSMSVerification(
-                          int.parse(otp1 + otp2 + otp3 + otp4 + otp5 + otp6));
+                      int statusCode =
+                          await authentication.checkSMSVerification(
+                        phone: Authentication.phone,
+                        code:
+                            int.parse(otp1 + otp2 + otp3 + otp4 + otp5 + otp6),
+                      );
+                      if (statusCode == 200) {
+                        setState(() {
+                          message = 'Verified successfully';
+                        });
+                      }
                     }
                   },
                 ),
@@ -207,13 +171,25 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
                 ),
                 CustomTextButton(
                   onPressed: () {
-                    sendSMSVerification(_token);
+                    authentication.sendSMSVerification(
+                      token: _token,
+                    );
                   },
                   label: 'Re-Send',
                   textColor: const Color(0xFF2B2D42),
                   bgcolor: Colors.white,
                 ),
               ],
+            ),
+            const SizedBox(height: 50),
+            Center(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 15.0,
+                  color: Color(0x802B2D42),
+                ),
+              ),
             ),
           ],
         ),

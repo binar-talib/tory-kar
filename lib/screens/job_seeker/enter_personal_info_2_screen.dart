@@ -82,7 +82,7 @@ class _EnterPersonalInformation2ScreenState
                 },
                 onSuggestionSelected: (suggestion) {
                   setState(() {
-                    _selectedLanguages.add("$suggestion");
+                    //_selectedLanguages.add("$suggestion");
                     Authentication.selectedLanguages.add("$suggestion");
                     suggestion = " ";
                   });

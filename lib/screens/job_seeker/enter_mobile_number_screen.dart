@@ -4,13 +4,10 @@ import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/networking/authentication.dart';
 
 class EnterMobileNumberScreen extends StatelessWidget {
-  // const EnterMobileNumberScreen({Key? key, this.onChanged}) : super(key: key);
-  // final Function(String)? onChanged;
+  EnterMobileNumberScreen({Key? key}) : super(key: key);
   final TextEditingController phoneController = TextEditingController(
     text: Authentication.phone,
   );
-
-  EnterMobileNumberScreen({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
