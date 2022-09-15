@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:tory_kar/networking/job_seeker.dart';
 import 'package:tory_kar/networking/jobs.dart';
 import 'package:tory_kar/screens/choose_language_screen.dart';
 
@@ -28,6 +29,7 @@ void main() async {
       child: MultiProvider(providers: [
         ChangeNotifierProvider(create: (context) => JobProvider()),
         ChangeNotifierProvider(create: (context) => Jobs()),
+        ChangeNotifierProvider(create: (context) => JobSeeker()),
       ], child: const MyApp()),
     ),
   );

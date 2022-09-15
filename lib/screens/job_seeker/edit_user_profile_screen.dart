@@ -1,11 +1,8 @@
-import 'dart:convert' as convert;
-
 import 'package:easy_localization/src/public_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_drop_down_button.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
@@ -14,7 +11,11 @@ import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/custom_widgets/custom_texts.dart';
+import 'package:tory_kar/models/job_seeker_model.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/job_seeker.dart';
+
+import '../../modules/languages.dart';
 
 class EditUserProfileScreen extends StatefulWidget {
   const EditUserProfileScreen({
@@ -28,7 +29,8 @@ class EditUserProfileScreen extends StatefulWidget {
     required this.skills,
     required this.location,
     required this.cvs,
-    required this.languages,
+    required this.jobSeekerLanguages,
+    required this.jobSeekerModel,
   }) : super(key: key);
 
   final String id;
@@ -39,8 +41,9 @@ class EditUserProfileScreen extends StatefulWidget {
   final String gendar;
   final String skills;
   final String location;
-  final List cvs;
-  final List languages;
+  final List<String> cvs;
+  final List<String> jobSeekerLanguages;
+  final JobSeekerModel jobSeekerModel;
   @override
   State<EditUserProfileScreen> createState() => _EditUserProfileScreenState();
 }
@@ -48,12 +51,12 @@ class EditUserProfileScreen extends StatefulWidget {
 class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
   String selectedGender = 'male';
   List<String> gender = [
+    'select gender',
     'male',
     'female',
   ];
-  List<String> _selectedLanguages = [];
-  late List languages;
-  late List cvs;
+  late List<String> jobSeekerLanguages;
+  late List<String> cvs;
   late TextEditingController fullName;
   late TextEditingController dateOfBirth;
   late TextEditingController bio;
@@ -62,11 +65,12 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
   late TextEditingController skills;
   late TextEditingController location;
   late String id;
+  late JobSeekerModel jobSeekerModel;
 
   @override
   void initState() {
     super.initState();
-    languages = widget.languages;
+    jobSeekerLanguages = widget.jobSeekerLanguages;
     cvs = widget.cvs;
     fullName = TextEditingController(text: widget.fullName);
     dateOfBirth = TextEditingController(
@@ -78,36 +82,23 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
     skills = TextEditingController(text: widget.skills);
     location = TextEditingController(text: widget.location);
     id = widget.id;
+    jobSeekerModel = widget.jobSeekerModel;
   }
 
   Future<void> updateJobSeeker() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobseekers/$id');
-    var response = await http.put(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'name': fullName.text,
-          'dateOfBirth': dateOfBirth.text,
-          'bio': bio.text,
-          'email': email.text,
-          'gendar': selectedGender,
-          'skills': skills.text,
-          'languages': _selectedLanguages,
-          'location': {
-            'formattedAddress': location.text,
-          },
-        },
-      ),
+    int response =
+        await Provider.of<JobSeeker>(context, listen: false).updateJobSeeker(
+      id: id,
+      name: fullName.text,
+      dateOfBirth: dateOfBirth.text,
+      bio: bio.text,
+      gendar: selectedGender,
+      skills: skills.text,
+      formattedAddress: location.text,
+      jobSeekerLanguages: jobSeekerLanguages,
+      jobSeekerModel: jobSeekerModel,
     );
-    if (response.statusCode == 200) {
+    if (response == 200) {
       Navigator.pop(context);
     }
   }
@@ -260,13 +251,13 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                   ),
                   suggestionsCallback: (pattern) {
                     int i = 0;
-                    final _selectedLanguages = languages.where((language) {
+                    final selectedLanguages = languages.where((language) {
                       final languageName = languages[i].toLowerCase();
                       final searchLanguage = pattern.toLowerCase();
                       i++;
                       return languageName.contains(searchLanguage);
                     }).toList();
-                    return _selectedLanguages;
+                    return selectedLanguages;
                   },
                   itemBuilder: (context, suggestion) {
                     return ListTile(
@@ -275,7 +266,8 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                   },
                   onSuggestionSelected: (suggestion) {
                     setState(() {
-                      _selectedLanguages.add("$suggestion");
+                      jobSeekerLanguages.add("$suggestion");
+                      jobSeekerLanguages = jobSeekerLanguages.toSet().toList();
                       suggestion = " ";
                     });
                   },
@@ -287,13 +279,13 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
                 endIndent: screenWidth * 0.5,
                 color: const Color(0xFF2B2D42).withOpacity(0.5),
               ),
-              for (var i in _selectedLanguages)
+              for (var i in jobSeekerLanguages)
                 CustomListTile(
                   title: i,
                   trailing: IconButton(
                     onPressed: () {
                       setState(() {
-                        _selectedLanguages.remove(i);
+                        jobSeekerLanguages.remove(i);
                       });
                     },
                     icon: const Icon(

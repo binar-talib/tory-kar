@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/build_dots.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/next_button.dart';
 import 'package:tory_kar/screens/job_seeker/enter_mobile_number_screen.dart';
+import 'package:tory_kar/screens/job_seeker/login_screen.dart';
 
 import '../../networking/job_seeker.dart';
 import 'enter_password_screen.dart';
@@ -101,7 +103,17 @@ class _SignUpPageViewScreenState extends State<SignUpPageViewScreen> {
         child: NextButton(
           onPressed: () async {
             if (_currentPage == 5) {
+              SharedPreferences preferences =
+                  await SharedPreferences.getInstance();
               var response = await JobSeeker().createNewJobSeeker();
+              if (response.statusCode == 200 || response.statusCode == 201) {
+                // preferences.setString('role', 'jobSeeker');
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                    (route) => false);
+              }
               print(response.statusCode);
             } else {
               setState(() {

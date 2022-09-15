@@ -27,7 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> login() async {
     if (password.text.isNotEmpty && phone.text.isNotEmpty) {
       int statusCode = await _authentication.userLogin(
-          phone: phone.text, password: password.text);
+        phone: phone.text,
+        password: password.text,
+      );
       if (statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
