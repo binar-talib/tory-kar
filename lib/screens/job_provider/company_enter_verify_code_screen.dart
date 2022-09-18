@@ -1,22 +1,15 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/modules/constants.dart';
 
+import '../../networking/authentication.dart';
+
 class CompanyEnterVerifyCodeScreen extends StatefulWidget {
   const CompanyEnterVerifyCodeScreen({
     Key? key,
-    required this.mobileNumber,
-    required this.role,
-    required this.password,
   }) : super(key: key);
-  final String mobileNumber;
-  final String role;
-  final String password;
 
   @override
   State<CompanyEnterVerifyCodeScreen> createState() =>
@@ -31,85 +24,19 @@ class _CompanyEnterVerifyCodeScreenState
     registerUser();
   }
 
+  final Authentication authentication = Authentication();
+  String message = '';
   String _token = '';
+
   Future<void> registerUser() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/register');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': widget.mobileNumber,
-          'password': widget.password,
-          'role': widget.role,
-        },
-      ),
+    _token = await authentication.registerUser(
+      role: Authentication.role,
+      phone: Authentication.phone,
+      password: Authentication.password,
     );
-    if (response.statusCode == 200) {
-      var decodedJson = convert.jsonDecode(response.body);
-      await prefs.setString('token', decodedJson['token']);
-      _token = decodedJson['token'];
-      sendSMSVerification(decodedJson['token']);
-      print('register successful  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-      print('register fail ${decodedJson['error']}');
-    }
-  }
-
-  Future<void> sendSMSVerification(String token) async {
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/sendsms');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': widget.mobileNumber,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print('send sms successfull  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-      print('send sms fail ${decodedJson['error']}');
-    }
-  }
-
-  Future<void> checkSMSVerification(int code) async {
-    final prefs = await SharedPreferences.getInstance();
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/checksms');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          'phone': widget.mobileNumber,
-          'code': code,
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print('send sms successfull  ${response.statusCode}');
-    } else {
-      var decodedJson = convert.jsonDecode(response.body);
-      print('send sms fail ${decodedJson['error']}');
-    }
-    if (response.statusCode == 200) {
-      prefs.setBool('verified', true);
-    } else {
-      print(response.statusCode);
-    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', _token);
+    authentication.sendSMSVerification(token: _token);
   }
 
   String otp1 = '0';
@@ -180,10 +107,18 @@ class _CompanyEnterVerifyCodeScreenState
                   onChanged: (String value) async {
                     otp6 = value;
                     if (value.length == 1) {
-                      final prefs = await SharedPreferences.getInstance();
-                      prefs.setBool('verified', false);
-                      checkSMSVerification(
-                          int.parse(otp1 + otp2 + otp3 + otp4 + otp5 + otp6));
+                      // final prefs = await SharedPreferences.getInstance();
+                      // prefs.setBool('verified', false);
+                      var response = await authentication.checkSMSVerification(
+                        phone: Authentication.phone,
+                        code:
+                            int.parse(otp1 + otp2 + otp3 + otp4 + otp5 + otp6),
+                      );
+                      if (response.statusCode == 200) {
+                        setState(() {
+                          message = 'Verified successfully';
+                        });
+                      }
                     }
                   },
                 ),
@@ -191,7 +126,7 @@ class _CompanyEnterVerifyCodeScreenState
             ),
             const SizedBox(height: 40.0),
             Text(
-              'Sent to this number: ${widget.mobileNumber}',
+              'Sent to this number: ${Authentication.phone}',
               style: const TextStyle(
                 fontSize: 15.0,
                 color: Color(0x802B2D42),
@@ -213,13 +148,25 @@ class _CompanyEnterVerifyCodeScreenState
                 ),
                 CustomTextButton(
                   onPressed: () {
-                    sendSMSVerification(_token);
+                    authentication.sendSMSVerification(
+                      token: _token,
+                    );
                   },
                   label: 'Re-Send',
                   textColor: const Color(0xFF2B2D42),
                   bgcolor: Colors.white,
                 ),
               ],
+            ),
+            const SizedBox(height: 50),
+            Center(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: 15.0,
+                  color: Color(0x802B2D42),
+                ),
+              ),
             ),
           ],
         ),

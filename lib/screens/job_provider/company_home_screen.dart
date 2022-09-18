@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:tory_kar/custom_widgets/company_job_cars.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
@@ -12,6 +13,7 @@ import 'package:tory_kar/screens/job_provider/company_profile_screen.dart';
 
 import '../../models/job_provider_job_model.dart';
 import '../../models/job_provider_model.dart';
+import '../../networking/jobs.dart';
 import 'company_add_job_screen.dart';
 import 'company_job_details_page_view_screen.dart';
 
@@ -126,34 +128,59 @@ class _CompanyHomeScreenState extends State<CompanyHomeScreen> {
                       ),
                       itemCount: searchedJobs.length,
                       itemBuilder: (context, index) {
-                        return CompanyJobCards(
-                          title: searchedJobs[index].name,
-                          salary: searchedJobs[index].salary,
-                          type: searchedJobs[index].jobType,
-                          location: searchedJobs[index].formattedAddress,
-                          deadline: searchedJobs[index].deadline,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CompanyJobDetailsPageViewScreen(
-                                  location:
-                                      searchedJobs[index].formattedAddress,
-                                  title: searchedJobs[index].name,
-                                  salary: searchedJobs[index].salary,
-                                  jobType: searchedJobs[index].jobType,
-                                  deadline: searchedJobs[index].deadline,
-                                  description:
-                                      searchedJobs[index].jobDescription,
-                                  qualification:
-                                      searchedJobs[index].jobQualifications,
-                                  companyBrief: jobProvider.companyDescription,
-                                  id: searchedJobs[index].id,
+                        return Slidable(
+                          endActionPane: ActionPane(
+                            motion: const ScrollMotion(),
+                            children: [
+                              IconButton(
+                                onPressed: () async {
+                                  var response = await Jobs().deleteJob(
+                                    id: searchedJobs[index].id,
+                                  );
+                                  if (response.statusCode >= 200 &&
+                                      response.statusCode <= 299) {
+                                    setState(() {
+                                      fetch();
+                                    });
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.delete_rounded,
+                                  color: Colors.red,
                                 ),
                               ),
-                            );
-                          },
+                            ],
+                          ),
+                          child: CompanyJobCards(
+                            title: searchedJobs[index].name,
+                            salary: searchedJobs[index].salary,
+                            type: searchedJobs[index].jobType,
+                            location: searchedJobs[index].formattedAddress,
+                            deadline: searchedJobs[index].deadline,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CompanyJobDetailsPageViewScreen(
+                                    location:
+                                        searchedJobs[index].formattedAddress,
+                                    title: searchedJobs[index].name,
+                                    salary: searchedJobs[index].salary,
+                                    jobType: searchedJobs[index].jobType,
+                                    deadline: searchedJobs[index].deadline,
+                                    description:
+                                        searchedJobs[index].jobDescription,
+                                    qualification:
+                                        searchedJobs[index].jobQualifications,
+                                    companyBrief:
+                                        jobProvider.companyDescription,
+                                    id: searchedJobs[index].id,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       },
                     );

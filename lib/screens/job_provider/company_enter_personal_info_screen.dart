@@ -2,22 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:tory_kar/custom_widgets/custom_text_area.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/job_provider.dart';
 
 class CompanyEnterPersonalInformationScreen extends StatefulWidget {
   const CompanyEnterPersonalInformationScreen({
     Key? key,
-    required this.companyNameOnChanged,
-    required this.dateOfStartupOnChanged,
-    required this.bioOnChanged,
-    required this.emailOnChanged,
-    required this.fieldOnChanged,
   }) : super(key: key);
-
-  final Function(String) companyNameOnChanged;
-  final Function(String) dateOfStartupOnChanged;
-  final Function(String) bioOnChanged;
-  final Function(String) emailOnChanged;
-  final Function(String) fieldOnChanged;
 
   @override
   State<CompanyEnterPersonalInformationScreen> createState() =>
@@ -26,8 +16,22 @@ class CompanyEnterPersonalInformationScreen extends StatefulWidget {
 
 class _CompanyEnterPersonalInformationScreen
     extends State<CompanyEnterPersonalInformationScreen> {
-  // List<String> gender = ['Male', 'Female'];
-  // String _selectedGender = 'Male';
+  TextEditingController nameController = TextEditingController(
+    text: JobProvider.name,
+  );
+  TextEditingController dateOfStartupController = TextEditingController(
+    text: JobProvider.dateOfStartup,
+  );
+  TextEditingController fieldController = TextEditingController(
+    text: JobProvider.field,
+  );
+  TextEditingController bioController = TextEditingController(
+    text: JobProvider.bio,
+  );
+  TextEditingController emailController = TextEditingController(
+    text: JobProvider.email,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,30 +48,24 @@ class _CompanyEnterPersonalInformationScreen
             const SizedBox(height: 40.0),
             CustomTextField(
               label: 'Company Name',
-              hintText: 'First  Middle  Last  Name',
+              hintText: 'Company Name',
               icon: const Icon(Icons.account_circle_rounded),
-              onChanged: widget.companyNameOnChanged,
+              onChanged: (value) {
+                JobProvider.name = value;
+              },
+              controller: nameController,
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
               label: 'Date of Startup',
-              hintText: 'DD/MM/YYYY',
+              hintText: 'YYYY-MM-DD',
               icon: const Icon(Icons.calendar_today_rounded),
-              onChanged: widget.dateOfStartupOnChanged,
+              onChanged: (value) {
+                JobProvider.dateOfStartup = value;
+              },
+              controller: dateOfStartupController,
             ),
             const SizedBox(height: 15.0),
-            // CustomDropDownButton(
-            //   label: 'Gender',
-            //   selectedValue: _selectedGender,
-            //   listOfValues: gender,
-            //   onChanged: (String? newValue) {
-            //     setState(() async {
-            //       _selectedGender = newValue!;
-            //       final prefs = await SharedPreferences.getInstance();
-            //       await prefs.setString('gendar', _selectedGender);
-            //     });
-            //   },
-            // ),
             CustomTextField(
               label: 'Field',
               hintText: 'Software',
@@ -75,20 +73,29 @@ class _CompanyEnterPersonalInformationScreen
                 Icons.calendar_today_rounded,
                 size: 0.0,
               ),
-              onChanged: widget.fieldOnChanged,
+              onChanged: (value) {
+                JobProvider.field = value;
+              },
+              controller: fieldController,
             ),
             const SizedBox(height: 15.0),
             CustomTextArea(
               label: 'Bio',
               hintText: 'Bio about yourself',
-              onChanged: widget.bioOnChanged,
+              onChanged: (value) {
+                JobProvider.bio = value;
+              },
+              controller: bioController,
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
               label: 'Email',
               hintText: 'example@info.com',
               icon: const Icon(Icons.mail_outline_rounded),
-              onChanged: widget.emailOnChanged,
+              onChanged: (value) {
+                JobProvider.email = value;
+              },
+              controller: emailController,
             ),
             MediaQuery.of(context).viewInsets.bottom == 0
                 ? const SizedBox(height: 0)

@@ -31,8 +31,7 @@ class JobSeeker extends ChangeNotifier {
   }
 
   Future<List> getCurrentJobSeeker({required String token}) async {
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobseekers/me');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobseekers/me');
     var response = await http.get(
       url,
       headers: <String, String>{
@@ -62,8 +61,7 @@ class JobSeeker extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    var url =
-        Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobseekers/$id');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobseekers/$id');
     var response = await http.put(
       url,
       headers: <String, String>{

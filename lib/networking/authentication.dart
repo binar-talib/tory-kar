@@ -23,7 +23,7 @@ class Authentication {
   }) async {
     SharedPreferences prefs = await _prefs;
 
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/login');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/login');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -51,7 +51,7 @@ class Authentication {
 
   Future<String> getLoggingUser({String? token}) async {
     SharedPreferences prefs = await _prefs;
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/auth/me');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/me');
     var response2 = await http.get(
       url,
       headers: <String, String>{
@@ -95,8 +95,9 @@ class Authentication {
     );
     if (response.statusCode == 200) {
       var decodedJson = jsonDecode(response.body);
-      await prefs.setString('token', decodedJson['token']);
       String token = decodedJson['token'];
+      await prefs.setString('token', token);
+
       print('register successful  ${response.statusCode}');
       return token;
     } else {
@@ -126,7 +127,7 @@ class Authentication {
     }
   }
 
-  Future<int> checkSMSVerification(
+  Future<http.Response> checkSMSVerification(
       {required int code, required String phone}) async {
     final prefs = await SharedPreferences.getInstance();
     var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
@@ -145,7 +146,7 @@ class Authentication {
     if (response.statusCode == 200) {
       print('check sms successful  ${response.statusCode}');
       prefs.setBool('verified', true);
-      return 200;
+      return response;
     } else {
       var decodedJson = jsonDecode(response.body);
       throw 'send sms fail ${decodedJson['error']}';

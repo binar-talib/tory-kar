@@ -32,35 +32,6 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
     authentication.sendSMSVerification(token: _token);
   }
 
-  // Future<void> checkSMSVerification({required int code}) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/auth/checksms');
-  //   var response = await http.post(
-  //     url,
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //     },
-  //     body: convert.jsonEncode(
-  //       <String, dynamic>{
-  //         'phone': Authentication.phone,
-  //         'code': code,
-  //       },
-  //     ),
-  //   );
-  //   if (response.statusCode == 200) {
-  //     print('send sms successfull  ${response.statusCode}');
-  //   } else {
-  //     var decodedJson = convert.jsonDecode(response.body);
-  //     print('send sms fail ${decodedJson['error']}');
-  //   }
-  //   if (response.statusCode == 200) {
-  //     prefs.setBool('verified', true);
-  //   } else {
-  //     print(response.statusCode);
-  //     print(response.body);
-  //   }
-  // }
-
   String otp1 = '0';
   String otp2 = '0';
   String otp3 = '0';
@@ -131,13 +102,12 @@ class _EnterVerifyCodeScreenState extends State<EnterVerifyCodeScreen> {
                     if (value.length == 1) {
                       final prefs = await SharedPreferences.getInstance();
                       prefs.setBool('verified', false);
-                      int statusCode =
-                          await authentication.checkSMSVerification(
+                      var response = await authentication.checkSMSVerification(
                         phone: Authentication.phone,
                         code:
                             int.parse(otp1 + otp2 + otp3 + otp4 + otp5 + otp6),
                       );
-                      if (statusCode == 200) {
+                      if (response.statusCode == 200) {
                         setState(() {
                           message = 'Verified successfully';
                         });

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
+import 'package:tory_kar/networking/authentication.dart';
 
 class CompanyEnterMobileNumberScreen extends StatelessWidget {
-  const CompanyEnterMobileNumberScreen({Key? key, this.onChanged})
-      : super(key: key);
-  final Function(String)? onChanged;
+  CompanyEnterMobileNumberScreen({Key? key}) : super(key: key);
+  final TextEditingController phoneController = TextEditingController(
+    text: Authentication.phone,
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,8 +22,11 @@ class CompanyEnterMobileNumberScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20.0),
             ),
             CustomTextField(
+              controller: phoneController,
               inputFormatters: [LengthLimitingTextInputFormatter(14)],
-              onChanged: onChanged,
+              onChanged: (value) {
+                Authentication.phone = value;
+              },
               keyboardType: TextInputType.phone,
               label: '',
               icon: const Icon(Icons.call_rounded),

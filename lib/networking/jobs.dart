@@ -10,7 +10,7 @@ import '../models/add_edit_job_model.dart';
 class Jobs extends ChangeNotifier {
   Future<List> getAllJobs() async {
     http.Response response = await http.get(
-      Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobs'),
+      Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobs'),
     );
     if (response.statusCode == 200) {
       var decodedJson = convert.jsonDecode(response.body);
@@ -23,8 +23,7 @@ class Jobs extends ChangeNotifier {
 
   Future<List> getJobsForJobProvider({required String id}) async {
     http.Response response = await http.get(
-      Uri.parse(
-          'https://tory-kar-1.herokuapp.com/api/v1/jobproviders/$id/jobs'),
+      Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobproviders/$id/jobs'),
     );
     if (response.statusCode == 200) {
       var decodedJson = convert.jsonDecode(response.body);
@@ -48,7 +47,7 @@ class Jobs extends ChangeNotifier {
     String? token = prefs.getString('token');
 
     var url = Uri.parse(
-        'https://tory-kar-1.herokuapp.com/api/v1/jobproviders/$id/jobs');
+        'https://tory-kar.herokuapp.com/api/v1/jobproviders/$id/jobs');
     var response = await http.post(
       url,
       headers: <String, String>{
@@ -86,7 +85,7 @@ class Jobs extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobs/$id');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobs/$id');
     var response = await http.put(
       url,
       headers: <String, String>{
@@ -109,6 +108,25 @@ class Jobs extends ChangeNotifier {
       return response;
     } else {
       throw 'there is a problem';
+    }
+  }
+
+  Future<http.Response> deleteJob({required String id}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var url = Uri.parse('https://tory-kar.herokuapp.com/api/v1/jobs/$id');
+
+    http.Response response = await http.delete(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode >= 200 && response.statusCode <= 299) {
+      return response;
+    } else {
+      throw 'Failed to load Jobs';
     }
   }
 }

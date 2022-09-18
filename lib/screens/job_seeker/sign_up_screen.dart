@@ -6,6 +6,7 @@ import 'package:tory_kar/custom_widgets/custom_texts.dart';
 import 'package:tory_kar/modules/constants.dart';
 import 'package:tory_kar/networking/authentication.dart';
 import 'package:tory_kar/screens/job_provider/company_sign_up_page_view_screen.dart';
+import 'package:tory_kar/screens/job_seeker/login_screen.dart';
 import 'package:tory_kar/screens/job_seeker/sign_up_page_view_screen.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -61,6 +62,7 @@ class SignUpScreen extends StatelessWidget {
               height: 50,
               child: CustomTextButton(
                 onPressed: () {
+                  Authentication.role = 'jobProvider';
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -88,7 +90,14 @@ class SignUpScreen extends StatelessWidget {
             ),
             CustomTextButton(
               label: 'Login',
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              },
               bgcolor: Colors.white,
               textColor: const Color(0xFF2B2D42),
             ),

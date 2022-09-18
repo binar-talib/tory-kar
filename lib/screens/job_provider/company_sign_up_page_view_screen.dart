@@ -1,13 +1,10 @@
-import 'dart:convert' as convert;
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tory_kar/custom_widgets/build_dots.dart';
 import 'package:tory_kar/custom_widgets/custom_app_bar.dart';
 import 'package:tory_kar/custom_widgets/custom_icon_button.dart';
 import 'package:tory_kar/custom_widgets/custom_text_button.dart';
 import 'package:tory_kar/custom_widgets/next_button.dart';
+import 'package:tory_kar/networking/job_provider.dart';
 
 import 'comapny_enter_password_screen.dart';
 import 'company_enter_mobile_number_screen.dart';
@@ -35,52 +32,6 @@ class _CompanySignUpPageViewScreenState
   initState() {
     super.initState();
     role = widget.role;
-  }
-
-  String mobileNumber = '';
-  String password = '';
-  String confirmPassword = '';
-  String name = '';
-  String dateOfStartup = '';
-  String field = '';
-  String bio = '';
-  String email = '';
-  String companyDescription = '';
-  List languages = [];
-  String profileImage = '';
-  String CVs = '';
-  String address = '';
-
-  createNewUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    // print(prefs.getStringList('selectedLanguages'));
-    // print(prefs.getString('gendar'));
-    var url = Uri.parse('https://tory-kar-1.herokuapp.com/api/v1/jobproviders');
-    var response = await http.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: convert.jsonEncode(
-        <String, dynamic>{
-          "name": name,
-          "dateOfStartup": dateOfStartup,
-          "fields": field,
-          "bio": bio,
-          "email": email,
-          "companyDescription": companyDescription,
-          "profileImage": "no-image.jpg",
-          "address": "Erbil"
-        },
-      ),
-    );
-    if (response.statusCode == 200) {
-      print(convert.jsonDecode(response.body));
-    } else {
-      print(convert.jsonDecode(response.body));
-    }
   }
 
   @override
@@ -114,46 +65,11 @@ class _CompanySignUpPageViewScreenState
               physics: const NeverScrollableScrollPhysics(),
               controller: _controller,
               children: [
-                CompanyEnterMobileNumberScreen(
-                  onChanged: (String value) {
-                    mobileNumber = value;
-                  },
-                ),
-                CompanyEnterPasswordScreen(
-                  onChangedConfirmPassword: (String value) {
-                    confirmPassword = value;
-                  },
-                  onChangedPassword: (String value) {
-                    password = value;
-                  },
-                ),
-                CompanyEnterVerifyCodeScreen(
-                  mobileNumber: mobileNumber,
-                  password: password,
-                  role: role,
-                ),
-                CompanyEnterPersonalInformationScreen(
-                  bioOnChanged: (String value) {
-                    bio = value;
-                  },
-                  dateOfStartupOnChanged: (String value) {
-                    dateOfStartup = value;
-                  },
-                  emailOnChanged: (String value) {
-                    email = value;
-                  },
-                  companyNameOnChanged: (String value) {
-                    name = value;
-                  },
-                  fieldOnChanged: (String value) {
-                    field = value;
-                  },
-                ),
-                CompanyEnterPersonalInformation2Screen(
-                  onChangedCompanyDescription: (String value) {
-                    companyDescription = value;
-                  },
-                ),
+                CompanyEnterMobileNumberScreen(),
+                CompanyEnterPasswordScreen(),
+                CompanyEnterVerifyCodeScreen(),
+                CompanyEnterPersonalInformationScreen(),
+                CompanyEnterPersonalInformation2Screen(),
                 const CompanyEnterPersonalInformation3Screen(),
               ],
             ),
@@ -161,7 +77,7 @@ class _CompanySignUpPageViewScreenState
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
-              7,
+              6,
               (index) => BuildDots(
                 index: index,
                 currentPage: _currentPage,
@@ -184,14 +100,17 @@ class _CompanySignUpPageViewScreenState
             : NextButton(
                 onPressed: () async {
                   if (_currentPage == 4) {
-                    createNewUser();
-                    setState(() {
-                      _controller.animateToPage(
-                        ++_currentPage,
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn,
-                      );
-                    });
+                    var response = await JobProvider().createNewJobProvider();
+                    if (response.statusCode == 200 &&
+                        response.statusCode == 299) {
+                      setState(() {
+                        _controller.animateToPage(
+                          ++_currentPage,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeIn,
+                        );
+                      });
+                    }
                   } else {
                     setState(() {
                       _controller.animateToPage(

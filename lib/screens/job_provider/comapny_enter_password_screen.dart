@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tory_kar/custom_widgets/custom_text_field.dart';
 import 'package:tory_kar/modules/constants.dart';
+import 'package:tory_kar/networking/authentication.dart';
 
 class CompanyEnterPasswordScreen extends StatefulWidget {
-  const CompanyEnterPasswordScreen(
-      {Key? key, this.onChangedPassword, this.onChangedConfirmPassword})
-      : super(key: key);
-  final Function(String)? onChangedPassword;
-  final Function(String)? onChangedConfirmPassword;
+  const CompanyEnterPasswordScreen({Key? key}) : super(key: key);
   @override
   State<CompanyEnterPasswordScreen> createState() =>
       _CompanyEnterPasswordScreen();
@@ -16,6 +13,12 @@ class CompanyEnterPasswordScreen extends StatefulWidget {
 class _CompanyEnterPasswordScreen extends State<CompanyEnterPasswordScreen> {
   bool obscureText1 = true;
   bool obscureText2 = true;
+  TextEditingController passwordController = TextEditingController(
+    text: Authentication.password,
+  );
+  TextEditingController confirmPasswordController = TextEditingController(
+    text: Authentication.confirmPassword,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,10 @@ class _CompanyEnterPasswordScreen extends State<CompanyEnterPasswordScreen> {
               height: screenHeight * 0.15,
             ),
             CustomTextField(
-              onChanged: widget.onChangedPassword,
+              controller: passwordController,
+              onChanged: (value) {
+                Authentication.password = value;
+              },
               obscureText: obscureText1,
               icon: const Icon(Icons.lock_rounded),
               hintText: '***********',
@@ -52,7 +58,10 @@ class _CompanyEnterPasswordScreen extends State<CompanyEnterPasswordScreen> {
             ),
             const SizedBox(height: 15.0),
             CustomTextField(
-              onChanged: widget.onChangedConfirmPassword,
+              controller: confirmPasswordController,
+              onChanged: (value) {
+                Authentication.confirmPassword = value;
+              },
               obscureText: obscureText2,
               icon: const Icon(Icons.call_rounded),
               hintText: '***********',
@@ -64,9 +73,11 @@ class _CompanyEnterPasswordScreen extends State<CompanyEnterPasswordScreen> {
                     obscureText2 = !obscureText2;
                   });
                 },
-                icon: Icon(obscureText2
-                    ? Icons.visibility_off_rounded
-                    : Icons.visibility),
+                icon: Icon(
+                  obscureText2
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility,
+                ),
               ),
             ),
             MediaQuery.of(context).viewInsets.bottom == 0
